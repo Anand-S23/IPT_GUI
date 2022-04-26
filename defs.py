@@ -1,5 +1,4 @@
 import pygame
-from enum import Enum
 
 # Settings
 WIDTH = 640
@@ -15,25 +14,17 @@ DRAK_GRAY = (50, 50, 50)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0);
 
-class Button_State(Enum):
-    DEFUALT = 0
-    HOVER = 1
-    ACTIVE = 3
-
 class Button():
-    def __init__(self, dim, color, hover_color, active_color, font, text):
+    def __init__(self, dim, font, text, color=GRAY, hover_color=LIGHT_GRAY):
         self.dim = dim
         self.color = color
         self.hover_color = hover_color
-        self.active_color = active_color
-        self.hover = Button_State.DEFUALT
+        self.hover = False
         self.text = font.render(text, True, BLACK)
 
     def draw(self, surface):
-        if self.hover == Button_State.HOVER:
+        if self.hover:
             pygame.draw.rect(surface, self.hover_color, self.dim)
-        elif self.hover == Button_State.ACTIVE:
-            pygame.draw.rect(surface, self.active_color, self.dim)
         else:
             pygame.draw.rect(surface, self.color, self.dim)
         
