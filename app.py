@@ -21,17 +21,19 @@ def reset(setup, source, output, result):
 def submit(setup, source, output, result):
     # Check if there is issue with paths
     if paths["setup"] == "" or paths["source"] == "" or paths["output"] == "":
-        result.config(text="One of the inputs are missing, fill to continue")
+        result.config(text="Error: One or more of the inputs are missing")
         return
 
-    os.system(f"IntuneWinAppUtil -c {paths['setup']} -s {paths['source']} -o {paths['output']}")
+    if os.system(f"IntuneWinAppUtil -c {paths['setup']} -s {paths['source']} -o {paths['output']}") != 0:
+        result.config(text="Error: command was not found")
+        return
     reset(setup, source, output, result)
 
 def select_file(key, widget, is_directory=True):
     if is_directory:
-        filename = fd.askdirectory()
+        filename = fd.askdirectory(initialdir="C:\\")
     else:
-        filename = fd.askopenfilename()
+        filename = fd.askopenfilename(initialdir="C:\\")
 
     if filename:
         paths[key] = filename
