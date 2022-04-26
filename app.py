@@ -1,134 +1,65 @@
-import pygame
-import pygame_gui
-from enum import Enum
-from pygame_gui.windows.ui_file_dialog import UIFileDialog
 import os
-from defs import *
+import tkinter as tk
+from tkinter import filedialog as fd
 
-class File_Selection(Enum):
-    NONE = 0
-    SETUP = 1
-    SOURCE = 2
-    OUTPUT = 3
+paths = {
+    "setup": "",
+    "source": "",
+    "output": ""
+}
 
-# Point inside rect check
-def check_interacting(obj_dim, x, y):
-    return (x >= obj_dim.x and x <= obj_dim.x + obj_dim.w and
-            y >= obj_dim.y and y <= obj_dim.y + obj_dim.h)
+def submit():
+    pass
 
-def button_dim(x, y, w=250, h=70):
-    return pygame.Rect(x, y, w, h)
+def select_file(key, widget, is_directory=True):
+    if is_directory:
+        filename = fd.askdirectory()
+    else:
+        filename = fd.askopenfilename()
+
+    if filename:
+        paths[key] = filename
+        new_label = f"'{filename}'"
+        widget.config(text=new_label)
+        print(paths[key])
+
+def init_app():
+    window = tk.Tk()
+    window.geometry("640x480")
+    window.title('Intune Prep Tool GUI')
+    return window
 
 def main():
-    # Initalize App Context
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption(TITLE)
-    clock = pygame.time.Clock()
-    font = pygame.font.SysFont('Arial.ttf', 24)
-    title_font = pygame.font.SysFont('Arial.ttf', 48)
-    manager = pygame_gui.UIManager((WIDTH, HEIGHT))
-    running = True
-    prev_down = False
+    window = init_app()
+    app_font = ('Arial', 18, 'bold')
+    path_font = ('Arial', 14)
+    title_width = 300
 
-    # Create Objects within app
-    setup_button  = Button(button_dim(10, 100), font, 'Select Setup Folder', GRAY, LIGHT_GRAY)
-    source_button = Button(button_dim(10, 200), font, 'Select Source Setup File', GRAY, LIGHT_GRAY)
-    output_button = Button(button_dim(10, 300), font, 'Select Output Folder', GRAY, LIGHT_GRAY)
-    submit_button = Button(button_dim(10, 400, 620, 70), font, 'Submit', GREEN, LIGHT_GRAY)
+    # Title
+    title_x = (640 - title_width) / 2
+    title = tk.Label(window, text='Intune Prep Tool GUI', font=app_font)  
+    title.place(x=title_x, y=0)
 
-    paths = {
-        "setup": "",
-        "source": "",
-        "output": ""
-    }
+    # Setup Row
+    setup = tk.Button(window, text='Select Setup Folder', width=67, command=lambda:select_file("setup", setup))
+    setup.place(x=5, y=50)
 
-    title = title_font.render(TITLE, True, BLACK)
-    setup_text = font.render("''", True, BLACK)
-    source_text = font.render("''", True, BLACK)
-    output_text = font.render("''", True, BLACK)
+    # Source Row
+    source = tk.Button(window, text='Select Source File', width=66, command=lambda:select_file("source", source, False))
+    source.place(x=5, y=100)
 
-    file_selection_type = File_Selection.NONE
+    # Output Row
+    output = tk.Button(window, text='Select Ouput Folder', width=65, command=lambda:select_file("output", output))
+    output.place(x=5, y=150)
 
-    while running:
-        time_delta = clock.tick(FPS) / 1000.0
+    # Submit Button
+    output = tk.Button(window, text='Submit', width=64, command=lambda:submit())
+    output.place(x=5, y=200)
 
-        # Get inputs
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+    # Update App
+    window.mainloop()
 
-            if event.type == pygame.USEREVENT:
-                if event.user_type == pygame_gui.UI_BUTTON_PRESSED and event.ui_element == file_selection.ok_button:
-                    if file_selection_type == File_Selection.SETUP:
-                        paths["setup"] = file_selection.current_file_path
-                        setup_text = font.render(f"'{file_selection.current_file_path}'", True, BLACK)
-
-                    elif file_selection_type == File_Selection.SOURCE:
-                        paths["source"] = file_selection.current_file_path
-                        source_text = font.render(f"'{file_selection.current_file_path}'", True, BLACK)
-
-                    elif file_selection_type == File_Selection.OUTPUT:
-                        paths["output"] = file_selection.current_file_path
-                        output_text = font.render(f"'{file_selection.current_file_path}'", True, BLACK)
-
-                    print(file_selection.current_file_path)
-
-            manager.process_events(event)
-
-        left_down, _, right_down = pygame.mouse.get_pressed()
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-
-        # Update application
-        setup_button.hover = check_interacting(setup_button.dim, mouse_x, mouse_y)
-        source_button.hover = check_interacting(source_button.dim, mouse_x, mouse_y)
-        output_button.hover = check_interacting(output_button.dim, mouse_x, mouse_y)
-        submit_button.hover = check_interacting(submit_button.dim, mouse_x, mouse_y)
-
-        if left_down and not prev_down:
-            if setup_button.hover:
-                file_selection_type = File_Selection.SETUP
-                file_selection = UIFileDialog(rect=pygame.Rect(0, 0, 300, 300), manager=manager, allow_picking_directories=True)
-                print(file_selection.current_file_path)
-
-            elif source_button.hover: 
-                file_selection_type = File_Selection.SOURCE
-                file_selection = UIFileDialog(rect=pygame.Rect(0, 0, 300, 300), manager=manager, allow_picking_directories=True)
-                print(file_selection.current_file_path)
-
-            elif output_button.hover: 
-                file_selection_type = File_Selection.OUTPUT
-                file_selection = UIFileDialog(rect=pygame.Rect(0, 0, 300, 300), manager=manager, allow_picking_directories=True)
-                print(file_selection.current_file_path)
-
-            elif submit_button.hover: 
-                file_selection = UIFileDialog(rect=pygame.Rect(0, 0, 300, 300), manager=manager, allow_picking_directories=True)
-
-        prev_down = left_down
-        manager.update(time_delta)
-
-        # Render applications
-        screen.fill(WHITE)
-
-        # Render Text
-        screen.blit(title, (0, 0))
-        screen.blit(setup_text, (280, 125))
-        screen.blit(source_text, (280, 225))
-        screen.blit(output_text, (280, 325))
-
-        # Render Buttons
-        setup_button.draw(screen)
-        source_button.draw(screen)
-        output_button.draw(screen)
-        submit_button.draw(screen)
-
-        manager.draw_ui(screen)
-        pygame.display.flip()
 
 if __name__ == '__main__':
-    # Initialize application
-    pygame.init()
-    pygame.font.init()
-
     main()
-    pygame.quit()
 
