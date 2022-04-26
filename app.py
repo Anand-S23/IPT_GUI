@@ -24,8 +24,7 @@ def submit(setup, source, output, result):
         result.config(text="One of the inputs are missing, fill to continue")
         return
 
-    #os.system(f"IntuneWinAppUtil -c {paths['setup']} -s {paths['source']} -o {paths['output']}")
-    os.system(f"echo {paths['setup']}")
+    os.system(f"IntuneWinAppUtil -c {paths['setup']} -s {paths['source']} -o {paths['output']}")
     reset(setup, source, output, result)
 
 def select_file(key, widget, is_directory=True):
@@ -41,7 +40,7 @@ def select_file(key, widget, is_directory=True):
 
 def init_app():
     window = tk.Tk()
-    window.geometry("640x480")
+    window.geometry("640x300")
     window.title('Intune Prep Tool GUI')
     return window
 
@@ -54,26 +53,26 @@ def main():
     # Title
     title_x = (640 - title_width) / 2
     title = tk.Label(window, text='Intune Prep Tool GUI', font=app_font)  
-    title.place(x=title_x, y=0)
+    title.place(x=8, y=0)
 
     # Result
-    result = tk.Label(window, text='Hello world', font=result_font)  
-    result.place(x=title_x, y=300)
+    result = tk.Label(window, text='', font=result_font)  
+    result.place(x=8, y=250)
 
     # Setup Row
-    setup = tk.Button(window, text='Select Setup Folder', width=66, command=lambda:select_file("setup", setup))
+    setup = tk.Button(window, text='Select Setup Folder', width=88, command=lambda:select_file("setup", setup))
     setup.place(x=8, y=50)
 
     # Source Row
-    source = tk.Button(window, text='Select Source File', width=66, command=lambda:select_file("source", source, False))
+    source = tk.Button(window, text='Select Source File', width=88, command=lambda:select_file("source", source, False))
     source.place(x=8, y=100)
 
     # Output Row
-    output = tk.Button(window, text='Select Ouput Folder', width=66, command=lambda:select_file("output", output))
+    output = tk.Button(window, text='Select Ouput Folder', width=88, command=lambda:select_file("output", output))
     output.place(x=8, y=150)
 
     # Submit Button
-    submit_btn = tk.Button(window, text='Submit', width=66, command=lambda:submit(setup, source, output, result))
+    submit_btn = tk.Button(window, text='Submit', width=88, command=lambda:submit(setup, source, output, result))
     submit_btn.place(x=8, y=200)
 
     # Update App
